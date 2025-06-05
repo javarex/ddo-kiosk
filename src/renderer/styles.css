@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  html {
+    @apply min-h-screen;
+  }
+  body {
+    @apply h-full m-0; /* Full height and remove margin */
+     @apply bg-gradient-to-t from-blue-400 from-10% to-white to-60%;
+  }
+}

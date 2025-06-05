@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"> -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"> -->
+
+    <script type="module" src="../../dist/renderer.js"></script>
+    <!-- <script type="module" src="../../node_modules/alpinejs/dist/cdn.min.js"></script> -->
+    <link rel="stylesheet" href="../../dist/bundle.css" />
+    <title>Hello from Electron renderer!</title>
+</head>
+
+<body class="min-h-screen bg-[your-color] overflow-auto">
+    <div x-data="alpineInit()" x-init="fetchOffices()">
+        <div class="flex flex-col items-center justify-center gap-y-3  pt-10">
+            <div>
+                <!-- <img src="assets/images/logo.png" alt="" class="w-20 h-20 inline" id="logo">
+                <img src="assets/images/BP.png" alt="" class="w-20 h-20 inline" id="bp">
+                <img src="assets/images/ticketing-logo.png" alt="" class="w-32 inline" id="ticketing-logo"> -->
+                <img src="../../assets/images/logo.png" alt="" class="w-20 h-20 inline" id="logo">
+                <img src="../../assets/images/BP.png" alt="" class="w-20 h-20 inline" id="bp">
+                <img src="../../assets/images/ticketing-logo.png" alt="" class="w-32 inline" id="ticketing-logo">
+            </div>
+            <div class="dark:text-white text-blue-600 font-medium text-center">
+                <h2
+                    class="text-[1.70rem] md:text-[1.875rem] lg:text-3xl font-bold sm:tracking-tight uppercase text-balance">
+                    PLGU - Davao de Oro</h2>
+            </div>
+            <div class="px-2">
+                <section x-show="services.length == 0">
+                    <div class="flex flex-wrap justify-center gap-5">
+                        <template x-for="office in offices">
+                            <a @click="() => fetchServices(office.department_code)"
+                                class="w-full shadow-lg md:w-[calc(50%-0.75rem)] xl:md:w-[calc(33.333333333%-0.75rem)] mt-1 divide-gray-200 overflow-hidden rounded-lg bg-gradient-to-t from-blue-951 from-2% to-blue-700 to-40% shadow transition delay-50 duration-100 ease-in-out  hover:-translate-y-1 hover:scale-10 hover:cursor-pointer ">
+                                <div
+                                    class="font-[BlackOpsOne] px-4 py-5 sm:p-6 text-7xl text-center font-bold text-amber-400 bg-gradient-to-br from-blue-700 from-15%  to-red-700 to-90% ">
+                                    <span x-text="office.short_name"></span>
+                                </div>
+                                <div class="px-4 py-4 sm:px-6 text-center " style="color: #534626">
+                                    <span x-text="office.office"></span>
+                                </div>
+                            </a>
+                        </template>
+                    </div>
+                </section>
+                <section id="services" x-show="services.length > 0">
+                    <div class="w-full text-left xl:ml-[17%] xl:mt-5">
+                        <a @click="goToindex()" href="#"
+                            class="inline-flex items-center text-gray-600 hover:text-primary-600 font-semibold transition-all">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                            </svg>
+                            Back
+                        </a>
+                    </div>
+                    <div
+                        class="flex flex-wrap justify-center gap-5 text-2xl overflow-y-auto pb-[100px]">
+                        <template x-for="service in services">
+                            <div
+                                @click="createTicket(service.id)"
+                                class="md:w-[calc(50%-0.75rem)] xl:md:w-[calc(33.333333333%-0.75rem)] mt-1 divide-gray-200 overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-gray-300 rounded-2xl p-8 hover:scale-[1.01] hover:cursor-pointer hover:bg-blue-400  transform transition">
+                                <span x-text="service.service"></span>
+                            </div>
+                        </template>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <!-- <div x-data="{ count: 0 }"  >
+    <h1 class="text-3xl font-bold text-green-600">Davao de Oro Kiosk</h1>
+    <h2 x-text="count"></h2>
+    <button @click="count++">Increment</button>
+  </div> -->
+
+</body>
+
+</html>

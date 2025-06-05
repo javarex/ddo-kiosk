@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: custom styles specific to print */
+.print-text {
+  @apply text-lg font-medium text-center;
+}
+
+body, html {
+  @apply m-0 p-0 w-full h-full;
+}
+
+.print-container {
+  @apply w-full h-full;
+}
+
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  @page {
+    margin: 0; /* Removes all margins around the page */
+  }
+}
