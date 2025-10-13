@@ -9,6 +9,11 @@
   }
   body {
     @apply h-full m-0; /* Full height and remove margin */
-     @apply bg-gradient-to-t from-blue-400 from-10% to-white to-60%;
+     @apply bg-gradient-to-t from-highlight_gold-1 from-10% to-white to-100%;
+     /* @apply bg-gradient-to-t from-highlight_gold-1 from-10% to-white to-60%; */
   }
+}
+
+[x-cloak] {
+  display: none !important;
 }

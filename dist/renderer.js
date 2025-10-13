@@ -3284,12 +3284,19 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
   // src/renderer/index.js
   window.Alpine = module_default;
   window.alpineInit = function() {
-    const apiUrl = "http://eodb.dvodeoro.home";
+    const apiUrl = "http://192.168.160.99:8000";
     return {
       loading: true,
       modalopen: false,
       offices: [],
       services: [],
+      selected_service: "",
+      priority_type: "",
+      priorities: {
+        senior: "Senior Citizen",
+        pregnant: "Pregnant",
+        pwd: "PWD"
+      },
       async fetchOffices() {
         try {
           const response = await fetch(`${apiUrl}/api/get-offices`);
@@ -3315,41 +3322,67 @@ ${expression ? 'Expression: "' + expression + '"\n\n' : ""}`, el);
           });
           const result = await response.json();
           this.services = result;
+          console.log(this.services);
         } catch (error2) {
           console.log("Error: ", error2);
         } finally {
           this.loading = false;
         }
       },
+      modalHeader() {
+        try {
+          return this.services.find((item) => item.id === this.selected_service).service;
+        } catch (error2) {
+          return "";
+        }
+        return "";
+      },
       goToindex() {
         this.services = [];
       },
-      async createTicket(id) {
+      openPriorityModal(id) {
+        this.selected_service = id;
+        this.modalopen = true;
+      },
+      async createTicket() {
         try {
-          const response = await fetch(`${apiUrl}/api/create-ticket/${id}`, {
+          const response = await fetch(`${apiUrl}/api/create-ticket/${this.selected_service}`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
-              id
+              id: this.selected_service,
+              priority_type: this.priority_type
             })
           });
           const result = await response.json();
           const time = new Date(result.datetime).toLocaleTimeString("en-PH");
           const date = new Date(result.datetime).toLocaleDateString("en-PH");
-          console.log(`${date} - ${time}`);
-          window.electronAPI.send("print-paper", {
+          console.log("testing");
+          let print_data = {
             ticket_no: result.ticket_no,
             service: result.service.service,
-            office: result.ofc.office,
+            office: result.service.initial_landing?.short_name ?? result.ofc.short_name,
             location: result.ofc.location,
-            datetime: `${date} - ${time}`
-          });
+            datetime: `${date} - ${time}`,
+            type: result.priority_type ? result.priority_type.toUpperCase() : "",
+            qr_link: `${apiUrl}/guest/qr-menu?ticket=${result.ticket_no}&date=${result.qr_date}`
+          };
+          console.log(print_data);
+          window.electronAPI.send("print-paper", print_data);
+          window.electronAPI.send("print-paper", print_data);
+          this.services = [];
+          await this.closeModal();
         } catch (error2) {
           console.log("Error: ", error2);
         } finally {
         }
+      },
+      closeModal() {
+        this.modalopen = false;
+        this.selected_service = "";
+        this.priority_type = "";
       }
     };
   };

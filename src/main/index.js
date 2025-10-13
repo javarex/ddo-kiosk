@@ -2,10 +2,13 @@ const { app, BrowserWindow, ipcMain, Notification } = require('electron')
 const path = require('path');
 const createWindow = () => {
   const win = new BrowserWindow({
-    // width: 1080,
-    // height: 1920,
-     width: 300,  // window size in pixels (not print size)
-    height: 300,
+    width: 1080,
+    height: 1920,
+    //  width: 300,  // window size in pixels (not print size)
+    // height: 300,
+    fullscreen:true,
+    fullscreenable:true,
+    frame: false,
     webPreferences: {
       preload: path.join(__dirname, '../preload.js'), // ✅ points to src/preload.js
       contextIsolation: true,
@@ -13,8 +16,8 @@ const createWindow = () => {
     }
   })
 
-  // win.loadFile('src/renderer/index.html')
-  win.loadFile('src/renderer/print.html')
+  win.loadFile('src/renderer/index.html')
+  // win.loadFile('src/renderer/print.html')
 }
 
 app.whenReady().then(() => {
