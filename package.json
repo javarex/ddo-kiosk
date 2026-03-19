@@ -1,13 +1,15 @@
 {
   "name": "ddo-kiosk",
-  "version": "1.3.0",
+  "version": "1.3.7",
   "main": "src/main/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:css": "npx postcss src/renderer/styles.css -o dist/bundle.css",
     "build:renderer": "node build-renderer.js",
+    "build:all-node": "npm run build:renderer && node build.js && node build-print.js",
     "start": "npm run build:css && npm run build:renderer && electron .",
     "build": "npm run build:css && npm run build:print-css && npm run copy:assets && electron-builder",
+    "build-setup": "npm run build:css && npm run build:print-css && npm run build:all-node && npm run build",
     "copy:assets": "npx cpy assets/**/* dist/assets",
     "build:print-css": "npx postcss src/renderer/print.css -o dist/print.css",
     "watch:css": "npx postcss src/renderer/styles.css -o dist/bundle.css --watch",

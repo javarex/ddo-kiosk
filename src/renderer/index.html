@@ -3,192 +3,257 @@
 
 <head>
     <meta charset="UTF-8" />
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';"> -->
-    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"> -->
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="module" src="../../dist/renderer.js"></script>
-    <!-- <script type="module" src="../../node_modules/alpinejs/dist/cdn.min.js"></script> -->
     <link rel="stylesheet" href="../../dist/bundle.css" />
-    <title>Hello from Electron renderer!</title>
+    <title>PLGU - Davao de Oro Kiosk</title>
 </head>
 
-<body class="min-h-screen bg-[your-color] overflow-auto">
+<body class="min-h-screen overflow-auto">
     <div x-data="alpineInit()" x-init="fetchOffices()">
-        <div class="flex flex-col items-center justify-center gap-y-3  pt-10">
-            <div>
-                <!-- <img src="assets/images/logo.png" alt="" class="w-20 h-20 inline" id="logo">
-                <img src="assets/images/BP.png" alt="" class="w-20 h-20 inline" id="bp">
-                <img src="assets/images/ticketing-logo.png" alt="" class="w-32 inline" id="ticketing-logo"> -->
-                <img src="../../assets/images/logo.png" alt="" class="w-20 h-20 inline" id="logo">
-                <img src="../../assets/images/BP.png" alt="" class="w-20 h-20 inline" id="bp">
-                <img src="../../assets/images/ticketing-logo.png" alt="" class="w-32 inline" id="ticketing-logo">
+        <!-- Header Section -->
+        <header class="py-8 px-4">
+            <div class="max-w-4xl mx-auto">
+                <!-- Logo Group -->
+                <div class="header-logo-group animate-fade-in">
+                    <img src="../../assets/images/logo.png" alt="DDO Logo" class="w-20 h-20 object-contain" id="logo">
+                    <img src="../../assets/images/BP.png" alt="Bagong Pilipinas" class="w-20 h-20 object-contain" id="bp">
+                    <img src="../../assets/images/ticketing-logo.png" alt="Ticketing" class="w-36 object-contain" id="ticketing-logo">
+                </div>
+
+                <!-- Title -->
+                <div class="text-center mt-4 animate-slide-up">
+                    <h1 class="text-3xl md:text-4xl font-bold text-sepia_brown-1 tracking-tight">
+                        PLGU - Davao de Oro
+                    </h1>
+                    <p class="text-sepia_brown-2/70 mt-1 text-lg">Provincial Government Ticketing System</p>
+                </div>
             </div>
-            <div class="dark:text-white text-sepia_brown-2 font-medium text-center">
-                <h2
-                    class="text-[1.70rem] md:text-[1.875rem] lg:text-3xl font-bold sm:tracking-tight uppercase text-balance text-sepia_brown-2">
-                    PLGU - Davao de Oro</h2>
-            </div>
-            <div class="px-2">
-                <section x-show="services.length == 0">
-                    <div class="flex flex-wrap justify-center gap-5">
-                        <template x-for="office in offices">
-                            <a @click="() => fetchServices(office.department_code)"
-                                class="w-full shadow-lg shadow-highlight_gold-1 hover:shadow-sepia_brown-1/40 md:w-[calc(50%-0.75rem)] xl:md:w-[calc(33.333333333%-0.75rem)] mt-1 divide-gray-200 overflow-hidden rounded-lg bg-gradient-to-t from-blue-951 from-2% to-blue-700 to-40% shadow transition delay-50 duration-100 ease-in-out  hover:-translate-y-1 hover:scale-10 hover:cursor-pointer ">
-                                <div
-                                    class="font-[BlackOpsOne] px-4 py-5 sm:p-6 text-7xl text-center font-bold text-amber-400 bg-gradient-to-br from-sepia_brown-1 from-15%  to-sepia_brown-2/80 to-90% ">
-                                    <span x-text="office.short_name"></span>
-                                </div>
-                                <div class="px-4 py-4 sm:px-6 text-center bg-gold h-full" style="color: #534626">
-                                    <span x-text="office.office"></span>
-                                </div>
-                            </a>
-                        </template>
+        </header>
+
+        <!-- Main Content -->
+        <main class="px-4 pb-32">
+            <!-- Offices Section -->
+            <section x-show="services.length == 0" class="max-w-6xl mx-auto">
+                <div class="text-center mb-8 animate-fade-in">
+                    <h2 class="text-xl font-semibold text-sepia_brown-1/80">Select an Office</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <template x-for="(office, index) in offices" :key="office.department_code">
+                        <div @click="() => fetchServices(office.department_code)"
+                            class="card-office animate-slide-up"
+                            :style="'animation-delay: ' + (index * 0.1) + 's'">
+                            <!-- Office Abbreviation -->
+                            <div class="card-office-abbrev">
+                                <span x-text="office.short_name"
+                                    class="font-[BlackOpsOne] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gold drop-shadow-lg"></span>
+                            </div>
+                            <!-- Office Full Name -->
+                            <div class="card-office-name">
+                                <span x-text="office.office"
+                                    class="text-sepia_brown-1 font-medium text-sm md:text-base leading-tight"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </section>
+
+            <!-- Services Section -->
+            <section id="services" x-show="services.length > 0" class="max-w-6xl mx-auto">
+                <!-- Back Button -->
+                <div class="mb-6 animate-fade-in">
+                    <a @click="goToindex()" href="#" class="back-link">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        <span>Back to Offices</span>
+                    </a>
+                </div>
+
+                <div class="text-center mb-8">
+                    <h2 class="text-xl font-semibold text-sepia_brown-1/80">Select a Service</h2>
+                </div>
+
+                <!-- Services Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                    <template x-for="(service, index) in services" :key="service.id">
+                        <div @click="openPriorityModal(service.id)"
+                            class="card-service p-6 animate-slide-up"
+                            :style="'animation-delay: ' + (index * 0.05) + 's'">
+                            <span x-text="service.service" class="text-lg font-medium leading-snug block"></span>
+                        </div>
+                    </template>
+                </div>
+            </section>
+        </main>
+
+        <!-- Priority Selection Modal -->
+        <div x-show="modalopen"
+            x-transition:enter="transition duration-300 ease-out"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="transition duration-200 ease-in"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            x-cloak
+            class="modal-overlay">
+
+            <div x-show="modalopen"
+                x-transition:enter="transition duration-300 ease-out delay-100"
+                x-transition:enter-start="opacity-0 scale-90 translate-y-4"
+                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                x-transition:leave="transition duration-200 ease-in"
+                x-transition:leave-start="opacity-100 scale-100"
+                x-transition:leave-end="opacity-0 scale-90"
+                class="modal-content">
+
+                <!-- Priority Selection View -->
+                <section id="priorities-selection" x-show="!viewTicket">
+                    <!-- Modal Header -->
+                    <div class="bg-gradient-to-r from-sepia_brown-1 to-sepia_brown-2 px-6 py-4">
+                        <h3 x-text="modalHeader()" class="text-xl font-bold text-gold text-center uppercase tracking-wide"></h3>
+                    </div>
+
+                    <!-- Instructions -->
+                    <div class="px-6 py-4 bg-white/50">
+                        <div class="flex items-start gap-3">
+                            <div class="flex-shrink-0 w-8 h-8 bg-sepia_brown-1 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4 text-gold" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="text-sm text-sepia_brown-2">
+                                <p class="font-semibold mb-1">Pahinumdom / Note:</p>
+                                <ul class="list-disc list-inside space-y-1 text-sepia_brown-2/80">
+                                    <li>Pilia ang kategorya sa kliyente bag-o mo pindot proceed/padayon.</li>
+                                    <li>Kung regular o normal na kliyente pwede ra mo proceed/padayon.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Selected Priority Badge -->
+                    <div class="px-6 py-3 border-t border-gold/20" x-show="priority_type !== ''">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-medium text-sepia_brown-1">Kategorya sa Kliyente:</span>
+                            <div class="flex items-center gap-1">
+                                <span x-text="priorities[priority_type]"
+                                    class="bg-sepia_brown-1 text-gold text-sm font-medium px-3 py-1 rounded-l-full uppercase"></span>
+                                <button @click="priority_type = ''"
+                                    class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-r-full transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Priority Cards Grid -->
+                    <div class="p-6 grid grid-cols-2 gap-4">
+                        <div @click="setPriority('pwd')"
+                            class="priority-card"
+                            :class="{'selected': priority_type == 'pwd'}">
+                            <img src="../../assets/images/pwd.png" alt="PWD">
+                            <span class="text-gold font-bold text-sm uppercase">PWD</span>
+                        </div>
+                        <div @click="setPriority('senior')"
+                            class="priority-card"
+                            :class="{'selected': priority_type == 'senior'}">
+                            <img src="../../assets/images/sc.png" alt="Senior Citizen">
+                            <span class="text-gold font-bold text-sm uppercase">Senior Citizen</span>
+                        </div>
+                        <div @click="setPriority('pregnant')"
+                            class="priority-card"
+                            :class="{'selected': priority_type == 'pregnant'}">
+                            <img src="../../assets/images/pregnant.png" alt="Pregnant">
+                            <span class="text-gold font-bold text-sm uppercase">Pregnant</span>
+                        </div>
+                        <div @click="setPriority('with_infant')"
+                            class="priority-card"
+                            :class="{'selected': priority_type == 'with_infant'}">
+                            <img src="../../assets/images/with_infant.png" alt="With Infant">
+                            <span class="text-gold font-bold text-sm uppercase">With Infant</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-center gap-4 px-6 pb-6">
+                        <button type="button" class="btn-danger" @click="modalopen = false">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            <span>Cancel</span>
+                        </button>
+                        <button type="button" class="btn-primary" @click="createTicket()">
+                            <span>Proceed / Padayon</span>
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </button>
                     </div>
                 </section>
-                <section id="services" x-show="services.length > 0">
-                   
-                    <div class="flex flex-wrap justify-center gap-5  overflow-y-auto pb-[100px]">
-                        <div class="w-full text-left xl:ml-[17%] xl:mt-5 text-md">
-                            <a @click="goToindex()" href="#"
-                                class="inline-flex items-center text-gray-600 hover:text-primary-600 font-semibold transition-all">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                                </svg>
-                                Back
-                            </a>
-                        </div>
-                        <template x-for="service in services">
-                            <div @click="openPriorityModal(service.id)"
-                                class="text-2xl md:w-[calc(50%-0.75rem)] xl:md:w-[calc(33.333333333%-0.75rem)] mt-1 divide-gray-200 overflow-hidden rounded-lg bg-white shadow-lg ring-1 ring-gray-300 rounded-2xl p-8 hover:scale-[1.01] hover:cursor-pointer hover:bg-sepia_brown-1 hover:text-gold  transform transition">
-                                <span x-text="service.service"></span>
-                            </div>
-                        </template>
+
+                <!-- Ticket Display View -->
+                <section id="view-ticket" x-show="viewTicket" class="animate-scale-in">
+                    <!-- Ticket Header -->
+                    <div class="bg-gradient-to-r from-sepia_brown-1 to-sepia_brown-2 px-6 py-4 flex items-center justify-between">
+                        <div></div>
+                        <h3 class="text-xl font-bold text-gold text-center uppercase tracking-wide">Your Ticket</h3>
+                        <button type="button" @click="closeModal(true)"
+                            class="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
                     </div>
 
-                     <div 
-                        x-show="modalopen"
-                        x-transition:enter="transition duration-300 ease-out"
-                        x-transition:enter-start="opacity-0 scale-90"
-                        x-transition:enter-end="opacity-100 scale-100"
-                        x-transition:leave="transition duration-200 ease-in"
-                        x-transition:leave-start="opacity-100 scale-100"
-                        x-transition:leave-end="opacity-0 scale-90"
-                        x-cloak
-                        class="fixed z-10 inset-0 flex items-center justify-center bg-gold/70"
-                    >
-                        <div>
-                            <div class="relative z-10" aria-labelledby="dialog-title" role="dialog" aria-modal="true">
+                    <!-- Ticket Content -->
+                    <div class="p-6">
+                        <div class="ticket-display text-center">
+                            <!-- Ticket Number -->
+                            <div class="ticket-number" x-text="ticket.ticket_no"></div>
 
-                                <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true"></div>
+                            <!-- Priority Badge -->
+                            <div x-show="ticket.priority_type"
+                                class="inline-block mt-2 px-3 py-1 bg-red-100 text-red-600 text-xs font-bold uppercase rounded-full">
+                                <span x-text="ticket.priority_type"></span>
+                            </div>
 
-                                <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-                                     
-                                    <div
-                                        class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                                        <div
-                                            class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all  sm:w-full sm:max-w-lg ">
-                                            <!-- <div class="px-2 py-3 bg-gradient-to-l from-gold to-gold/40">
-                                                <span class="font-bold uppercase text-sepia_brown">Select Priority</span>
-                                            </div> -->
-                                            <div class="sm:flex-col sm:items-start">
-                                               
-                                                <div 
-                                                class="mt-3 text-center sm:mt-0 sm:text-left basis-full bg-gradient-to-b from-gold to-gold/20 flex flex-col">
-                                                    <div
-                                                        class="text-xl px-4 text-center pt-3">
-                                                        <span x-text="modalHeader()" class="underline uppercase font-bold"></span>
-                                                    </div>
-                                                    <div class="px-10 pt-5 text-justify">
-                                                        <span class="font-bold">Note:</span> 
-                                                        <ul class="list-disc space-y-3">
-                                                            <li>Pilia ang kategorya sa kliyente bag-o mo pindot proceed/padayon. </li>
-                                                            <li>Kung regular o normal na kliyente pwede ra mo proceed/padayon. </li>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="px-10 flex  gap-x-2 pt-3 border-t border-sepia_brown-2 ">
-                                                        <span class="basis-1/2 font-bold text-xl">Kategorya sa Kliyente:</span>
-                                                        <div x-show="priority_type !== ''">
-                                                            <div class="flex">
-                                                                <div x-text="priorities[priority_type]" class="bg-sepia_brown-1 px-2 py-1 rounded-l text-gold text-sm uppercase border-r border-white"></div>
-                                                                <div class="text-white rounded-r text-sm font-bold px-2 py-1 cursor-pointer hover:bg-red-400 bg-red-600" @click="priority_type = ''">x</div>
-                                                            </div>
-                                                            <!-- <div class="flex gap-x-2  py-1 rounded-lg bg-sepia_brown-1 text-sm">
-                                                                <div x-text="priorities[priority_type]" class="bg-blue-400 text-gold uppercase border-r border-white"></div>
-                                                                <div class="text-red-600 font-bold pe-2 cursor-pointer hover:text-red-300 bg-red-400" @click="priority_type = ''">x</div>
-                                                            </div> -->
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex justify-center gap-x-10 mt-3">
-                                                        <div class="flex flex-col text-center gap-y-2"  @click="priority_type = 'pwd'">
-                                                            <div :class="{'bg-highlight_gold-2': priority_type == 'pwd'}" class="p-4 ring-1 ring-gold/20 ring-4 bg-sepia_brown-1 rounded-2xl shadow-lg hover:bg-highlight_gold-2 hover:cursor-pointer">
-                                                                <img src="../../assets/images/pwd.png" alt="" class="w-20 h-20 inline" id="logo">
-                                                            </div>
-                                                            <div class="text-sepia_brown text-underlined font-bold">PWD</div>
-                                                        </div>
-                                                        <div class="flex flex-col text-center gap-y-2" @click="priority_type = 'senior'">
-                                                            <div :class="{'bg-highlight_gold-2': priority_type == 'senior'}" class="p-4 ring-1 ring-gold/20 ring-4 bg-sepia_brown-1 rounded-2xl shadow-lg hover:bg-highlight_gold-2 hover:cursor-pointer">
-                                                                <img src="../../assets/images/sc.png" alt="" class="w-20 h-20 inline" id="logo">
-                                                            </div>
-                                                            <div class="text-sepia_brown text-underlined font-bold uppercase ">Senior Citizen</div>
-                                                        </div>
-                                                        <div class="flex flex-col text-center gap-y-2" @click="priority_type = 'pregnant'">
-                                                            <div :class="{'bg-highlight_gold-2': priority_type == 'pregnant'}" class="p-4 ring-1 ring-gold/20 ring-4 bg-sepia_brown-1 rounded-2xl shadow-lg hover:bg-highlight_gold-2 hover:cursor-pointer">
-                                                                <img src="../../assets/images/pregnant.png" alt="" class="w-20 h-20 inline" id="logo">
-                                                            </div>
-                                                            <div class="text-sepia_brown text-underlined font-bold uppercase ">Pregnant</div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex justify-center gap-4 p-4">
-                                                        <button type="button" 
-                                                                class="flex items-center justify-center gap-1 rounded-md bg-red-800 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-600"
-                                                                @click="modalopen = !modalopen">
-                                                            <span>Cancel</span>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                                                            </svg>
+                            <!-- Service Name -->
+                            <div class="mt-3 text-sm text-sepia_brown-2/80 italic" x-text="ticket.service"></div>
 
-                                                        </button>
-
-                                                        <button 
-                                                            type="button" 
-                                                            class="flex items-center justify-center gap-1 rounded-md bg-sepia_brown-1 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-sepia_brown-1/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-600"
-                                                            @click="createTicket()">
-                                                            <span>Proceed/Padayon</span>
-                                                            <svg viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
-                                                                <path d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" fill-rule="evenodd" />
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-
-
-                                                </div>
-                                            </div>
-                                            <!-- <div class="sm:flex p-2 border-t-2 border-gray-300">
-                                                <button type="button"
-                                                    class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:w-auto">Deactivate</button>
-                                                <button type="button"
-                                                    class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:ml-3 sm:mt-0 sm:w-auto">Cancel</button>
-                                            </div> -->
-                                        </div>
-                                    </div>
+                            <!-- Ticket Details -->
+                            <div class="mt-6 pt-4 border-t border-gray-200 text-left space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="font-medium text-sepia_brown-1">Date:</span>
+                                    <span class="text-sepia_brown-2" x-text="ticket.datetime"></span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="font-medium text-sepia_brown-1">Office:</span>
+                                    <span class="text-sepia_brown-2 text-right max-w-[60%]" x-text="ticket.office"></span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="font-medium text-sepia_brown-1">Type:</span>
+                                    <span class="text-sepia_brown-2" x-text="ticket.type"></span>
                                 </div>
                             </div>
-                        </div>
 
+                            <!-- Print Button -->
+                            <div class="mt-6 pt-4 border-t border-gray-200">
+                                <button class="btn-primary w-full" @click="print()">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                                    </svg>
+                                    <span>Print Ticket</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    
                 </section>
             </div>
         </div>
     </div>
-    <!-- <div x-data="{ count: 0 }"  >
-    <h1 class="text-3xl font-bold text-green-600">Davao de Oro Kiosk</h1>
-    <h2 x-text="count"></h2>
-    <button @click="count++">Increment</button>
-  </div> -->
-
 </body>
 
 </html>

@@ -27,7 +27,7 @@ app.whenReady().then(() => {
 ipcMain.on('print-paper', (event, data) => {
    const printWindow = new BrowserWindow({
     width: 300,  // window size in pixels (not print size)
-    height: 300,
+    height: 400,
     show: false, // hide window during print
     webPreferences: {
       preload: path.join(__dirname, '../preload.js'),
@@ -57,7 +57,7 @@ ipcMain.on('print-paper', (event, data) => {
       printWindow.webContents.print({
         silent: true,
         printBackground: false,
-        deviceName: 'w80',  // Replace with actual printer name
+        deviceName: 'EPSON TM-T82X Receipt',  // Replace with actual printer name
         pageSize: {
           width: 3 * 25400,  // 3 inches in microns
           height: 3 * 25400
