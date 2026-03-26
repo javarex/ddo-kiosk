@@ -5,6 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:css": "npx postcss src/renderer/styles.css -o dist/bundle.css",
+    "build:web": "node build.js && node build-web.js && npx postcss src/renderer/styles.css -o www/bundle.css",
     "build:renderer": "node build-renderer.js",
     "build:all-node": "npm run build:renderer && node build.js && node build-print.js",
     "start": "npm run build:css && npm run build:renderer && electron .",
@@ -30,6 +31,9 @@
     "tailwindcss": "^3.3.5"
   },
   "dependencies": {
+    "@capacitor/android": "^8.2.0",
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0",
     "alpinejs": "^3.14.9",
     "qrcode": "^1.5.4"
   },

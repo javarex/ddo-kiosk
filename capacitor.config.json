@@ -1,0 +1,8 @@
+{
+  "appId": "com.davao_de_oro.kiosk",
+  "appName": "DDO Kiosk",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

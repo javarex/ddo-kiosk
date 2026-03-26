@@ -6,11 +6,14 @@ window.Alpine = Alpine;
 
 
 window.alpineInit = function () {
-    const apiUrl = 'http://192.168.160.99:8000';
-    // const apiUrl = 'http://eodb.dvodeoro.home';
-    // const apiUrl = 'http://ddo-ticketing.dvodeoro.local';
     return {
-        loading: true,
+        loading: false,
+        apiUrl: localStorage.getItem('kiosk_api_url') || '',
+        apiUrlInput: localStorage.getItem('kiosk_api_url') || '',
+        apiSetupDone: !!localStorage.getItem('kiosk_api_url'),
+        apiUrlHistory: JSON.parse(localStorage.getItem('kiosk_api_url_history') || '[]'),
+        errorLog: [],
+        showErrorLog: false,
         modalopen:false,
         viewTicket:false,
         offices: [],
@@ -18,14 +21,49 @@ window.alpineInit = function () {
         selected_service:'',
         priority_type:'',
         last_print_data:{},
-        ticket: {
-            // ticket_no: 'Z005',
-            // priority: 'test',
-            // service: 'test',
-            // datetime: 'test',
-            // office: 'test',
-            // location: 'test',
-            // type: 'test',
+        ticket: {},
+
+        saveApiUrl() {
+            const url = this.apiUrlInput.replace(/\/+$/, '');
+            if (!url) return;
+            if (this.apiUrl && this.apiUrl !== url && !this.apiUrlHistory.includes(this.apiUrl)) {
+                this.apiUrlHistory.unshift(this.apiUrl);
+                localStorage.setItem('kiosk_api_url_history', JSON.stringify(this.apiUrlHistory));
+            }
+            localStorage.setItem('kiosk_api_url', url);
+            this.apiUrl = url;
+            this.apiSetupDone = true;
+            this.loading = true;
+            this.fetchOffices();
+        },
+
+        resetApiUrl() {
+            this.apiSetupDone = false;
+            this.apiUrlInput = this.apiUrl;
+        },
+
+        cancelApiSetup() {
+            if (this.apiUrl) {
+                this.apiSetupDone = true;
+                this.apiUrlInput = this.apiUrl;
+            }
+        },
+
+        selectHistoryUrl(url) {
+            this.apiUrlInput = url;
+        },
+
+        logError(context, error) {
+            const lines = [
+                `[${new Date().toLocaleTimeString()}] ${context}`,
+                `Type: ${error?.name || typeof error}`,
+                `Message: ${error?.message || String(error)}`,
+                `Stack: ${error?.stack || 'n/a'}`,
+            ];
+            const entry = lines.join(' | ');
+            console.log(entry);
+            this.errorLog.unshift({ full: entry, lines });
+            if (this.errorLog.length > 50) this.errorLog.pop();
         },
         priorities: {
             senior: 'Senior Citizen',
@@ -34,22 +72,21 @@ window.alpineInit = function () {
             with_infant: 'With Infant',
         },
         async fetchOffices() {
+            if (!this.apiUrl) return;
             try {
-                const response = await fetch(`${apiUrl}/api/get-offices`);
+                const response = await fetch(`${this.apiUrl}/api/get-offices`);
                 const result = await response.json();
-                this.offices = result; 
-                console.log(this.services.length > 0)
+                this.offices = result;
             } catch (error) {
-                console.log('Error: ', error);
+                this.logError(`fetchOffices (${this.apiUrl})`, error);
             } finally {
-                
                 this.loading = false;
             }
         },
 
         async fetchServices(office_id) {
             try {
-                const response = await fetch(`${apiUrl}/api/get-service/${office_id}`, {
+                const response = await fetch(`${this.apiUrl}/api/get-service/${office_id}`, {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json'
@@ -62,9 +99,8 @@ window.alpineInit = function () {
                 this.services = result; 
                 console.log(this.services)
             } catch (error) {
-                console.log('Error: ', error);
+                this.logError(`fetchServices (${this.apiUrl})`, error);
             } finally {
-                
                 this.loading = false;
             }
         },
@@ -90,7 +126,7 @@ window.alpineInit = function () {
         async createTicket() {
             try {
                 console.log(`create: ${this.priority_type}`)
-                const response = await fetch(`${apiUrl}/api/create-ticket/${this.selected_service}`, {
+                const response = await fetch(`${this.apiUrl}/api/create-ticket/${this.selected_service}`, {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json'
@@ -121,24 +157,24 @@ window.alpineInit = function () {
                     location:  result.ofc.location,
                     datetime: this.datetime,
                     type: this.ticket.type,
-                    qr_link:`${apiUrl}/guest/qr-menu?ticket=${result.ticket_no}&date=${result.qr_date}`
+                    qr_link:`${this.apiUrl}/guest/qr-menu?ticket=${result.ticket_no}&date=${result.qr_date}`
                 };
 
                 this.last_print_data = print_data;
 
                 console.log(print_data)
 
-                window.electronAPI.send('print-paper', print_data);
-
-                window.electronAPI.send('print-paper', print_data);
+                if (window.electronAPI) {
+                    window.electronAPI.send('print-paper', print_data);
+                    window.electronAPI.send('print-paper', print_data);
+                }
 
                 this.viewTicket = true;
                 // this.services = [];
                 // await this.closeModal();
             } catch (error) {
-                console.log('Error: ', error);
+                this.logError(`createTicket (${this.apiUrl})`, error);
             } finally {
-                
                 // this.loading = false;
             }
         },
@@ -154,7 +190,9 @@ window.alpineInit = function () {
                     type: this.last_print_data.type,
                     qr_link:this.last_print_data.qr_link
                 };
-            window.electronAPI.send('print-paper', print_data);
+            if (window.electronAPI) {
+                window.electronAPI.send('print-paper', print_data);
+            }
         },
 
         closeModal(clearService = false) {

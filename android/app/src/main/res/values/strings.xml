@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">DDO Kiosk</string>
+    <string name="title_activity_main">DDO Kiosk</string>
+    <string name="package_name">com.davao_de_oro.kiosk</string>
+    <string name="custom_url_scheme">com.davao_de_oro.kiosk</string>
+</resources>
