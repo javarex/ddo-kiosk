@@ -1,9 +1,9 @@
 const esbuild = require('esbuild');
 
 esbuild.build({
-  entryPoints: ['src/print/qrcode.js'],
+  entryPoints: ['src/print/ticket.js'],
   bundle: true,
-  outfile: 'dist/qrcode-bundle.js',
+  outfile: 'dist/print-bundle.js',
   platform: 'browser',
   format: 'iife',
   minify: true,

@@ -5,76 +5,39 @@
     <meta charset="UTF-8">
     <title>Print Page</title>
     <link rel="stylesheet" href="../../dist/print.css" />
-    <script src="../../dist/qrcode-bundle.js"></script>
+    <script src="../../dist/print-bundle.js"></script>
 </head>
 
 <body>
-    <div class="px-2 print-container">
-        <div class="flex flex-col text-center">
-            <div class="ticket-number font-bold text-4xl" id="ticket-no"></div>
-            <div class="italic text-sm font-bold leading-none" id="ticket-priority"></div>
-            <!-- <div class="font-bold leading-none" id="ticket-service">ICT Support for Computer Hardware, Software and Communication Infrastructure</div> -->
-            <div class="italic text-sm leading-none" id="ticket-service"></div>
-            <!-- <div class="ticket-number" id="ticket-no">A001</div> -->
-        </div>
-        <div class="mt-2 border-t border-gray-300">
-            <dl class="divide-y divide-gray-800 space-y-1">
-                <div class="grid grid-cols-3">
-                    <dt class="text-sm/6 font-medium text-gray-900">Date: </dt>
-                    <dd class="text-sm/6 text-gray-900 col-span-2 "><span id="ticket-date"></span></dd>
-                </div>
-                <div class="grid grid-cols-3">
-                    <dt class="text-sm/4 font-medium text-gray-900">Office: </dt>
-                    <dd class="text-sm/4 text-gray-900 col-span-2 "><span id="office"></span></dd>
-                    <!-- <dd class="text-sm/4 text-gray-900 col-span-2 "><span id="office">PROVINCIAL INFORMATION AND COMMUNICATIONS TECHNOLOGY OFFICE</span></dd> -->
-                </div>
-                <div class="grid grid-cols-3">
-                    <dt class="text-sm/4 font-medium text-gray-900">Type: </dt>
-                    <dd class="text-sm/4 text-gray-900 col-span-2 "><span id="type"></span></dd>
-                    <!-- <dd class="text-sm/4 text-gray-900 col-span-2 "><span id="office">PROVINCIAL INFORMATION AND COMMUNICATIONS TECHNOLOGY OFFICE</span></dd> -->
-                </div>
-                <div class="grid grid-cols-3" style="display: none;">
-                    <dt class="text-sm/4 font-medium text-gray-900">Location: </dt>
-                    <dd class="text-sm/4 text-gray-900 col-span-2 "><span id="location"></span></dd>
-                    <!-- <dd class="text-sm/4 text-gray-900 col-span-2 "><span id="location">3rd floor capitol building, cabidianan, Nabunturan, Davao de Oro</span></dd> -->
-                </div>
-                <div class="flex justify-between">
-                    <div class="text-[9pt]">
-                        <div class="font-bold text-2xl uppercase">
-                            Scan to:
-                        </div>
-                        <div class="pl-5">
-                            <ul class="list-disc">
-                                <li>
-                                    Update your personal information for a faster transaction.
-                                </li>
-                                <li>
-                                    Submit Feedback.
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div>
-                        <canvas id="canvas"></canvas>
-                    </div>
-                    <!-- <dd class="text-sm/4 text-gray-900 col-span-2 "><span id="location">3rd floor capitol building, cabidianan, Nabunturan, Davao de Oro</span></dd> -->
-                </div>
-            </dl>
-        </div>
-    </div>
+    <main class="receipt">
+        <section class="receipt-header">
+            <p class="receipt-label">Queue Number</p>
+            <div class="ticket-number" id="ticket-no"></div>
+            <div class="ticket-priority" id="ticket-priority"></div>
+            <div class="ticket-service" id="ticket-service"></div>
+        </section>
 
-    <script>
-        
-        // Optional: replace with dynamic content if needed
-        
-        // window.electronAPI.receive('set-print-data', (data) => {
-        //     document.getElementById('ticket-no').textContent = data.ticket_no;
-        //     document.getElementById('ticket-service').textContent = data.service;
-        //     document.getElementById('ticket-date').textContent = data.datetime;
-        //     document.getElementById('office').textContent = data.office;
-        //     document.getElementById('location').textContent = data.location;
-        // });
-    </script>
+        <section class="receipt-details" aria-label="Ticket details">
+            <div class="detail-row">
+                <span class="detail-label">Date</span>
+                <span class="detail-value" id="ticket-date"></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Office</span>
+                <span class="detail-value" id="office"></span>
+            </div>
+            <div class="detail-row is-hidden">
+                <span class="detail-label">Location</span>
+                <span class="detail-value" id="location"></span>
+            </div>
+        </section>
+
+        <section class="receipt-footer">
+            <div class="footer-rule"></div>
+            <p>Please wait for your number to be called.</p>
+            <p>Thank you.</p>
+        </section>
+    </main>
 </body>
 
 </html>

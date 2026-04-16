@@ -227,8 +227,7 @@ window.alpineInit = function () {
                     office: this.ticket.office,
                     location:  result.ofc.location,
                     datetime: this.datetime,
-                    type: this.ticket.type,
-                    qr_link:`${this.apiUrl}/guest/qr-menu?ticket=${result.ticket_no}&date=${result.qr_date}`
+                    type: this.ticket.type
                 };
 
                 this.last_print_data = print_data;
@@ -257,8 +256,7 @@ window.alpineInit = function () {
                     office: this.last_print_data.office,
                     location:  this.last_print_data.location,
                     datetime: this.last_print_data.datetime,
-                    type: this.last_print_data.type,
-                    qr_link:this.last_print_data.qr_link
+                    type: this.last_print_data.type
                 };
             if (window.electronAPI) {
                 window.electronAPI.send('print-paper', this.printPayload(print_data));

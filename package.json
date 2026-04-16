@@ -34,8 +34,7 @@
     "@capacitor/android": "^8.2.0",
     "@capacitor/cli": "^8.2.0",
     "@capacitor/core": "^8.2.0",
-    "alpinejs": "^3.14.9",
-    "qrcode": "^1.5.4"
+    "alpinejs": "^3.14.9"
   },
   "build": {
     "appId": "com.yourcompany.ddo-kioskv2",
