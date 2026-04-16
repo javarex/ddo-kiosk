@@ -3,6 +3,7 @@ import QRCode from 'qrcode';
 document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('canvas');
   window.electronAPI.receive('set-print-data', (data) => {
+    try {
       document.getElementById('ticket-no').textContent = data.ticket_no;
       document.getElementById('ticket-priority').textContent = data.priority;
       document.getElementById('ticket-service').textContent = data.service;
@@ -14,8 +15,24 @@ document.addEventListener('DOMContentLoaded', () => {
         data.qr_link, {
         width: 90
         }, (err) => {
-          if (err) console.error(err);
-          else console.log('✅ QR code generated');
+          if (err) {
+            console.error(err);
+            if (data.errorChannel) {
+              window.electronAPI.send(data.errorChannel, err.message);
+            }
+            return;
+          }
+
+          console.log('QR code generated');
+          if (data.readyChannel) {
+            window.electronAPI.send(data.readyChannel);
+          }
         });
+    } catch (error) {
+      console.error(error);
+      if (data.errorChannel) {
+        window.electronAPI.send(data.errorChannel, error.message);
+      }
+    }
   });
 });

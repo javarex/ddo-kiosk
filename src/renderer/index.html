@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="module" src="../../dist/renderer.js"></script>
+    <script type="module" src="../../dist/bundle.js"></script>
     <link rel="stylesheet" href="../../dist/bundle.css" />
     <title>PLGU - Davao de Oro Kiosk</title>
 </head>
 
 <body class="min-h-screen overflow-auto">
-    <div x-data="alpineInit()" x-init="apiSetupDone && fetchOffices()">
+    <div x-data="alpineInit()" x-init="initKiosk()">
         <!-- Header Section -->
         <header class="py-8 px-4">
             <div class="max-w-4xl mx-auto">
@@ -27,10 +27,16 @@
                         PLGU - Davao de Oro
                     </h1>
                     <p class="text-sepia_brown-2/70 mt-1 text-lg">Provincial Government Ticketing System</p>
-                    <button x-show="apiSetupDone" @click="resetApiUrl()" type="button"
-                        class="mt-2 text-xs text-sepia_brown-2/50 hover:text-sepia_brown-1 underline transition-colors">
-                        Change API URL
-                    </button>
+                    <div x-show="apiSetupDone" class="mt-2 flex flex-wrap justify-center gap-3">
+                        <button @click="resetApiUrl()" type="button"
+                            class="text-xs text-sepia_brown-2/50 hover:text-sepia_brown-1 underline transition-colors">
+                            Change API URL
+                        </button>
+                        <button @click="openPrinterSetup()" type="button"
+                            class="text-xs text-sepia_brown-2/50 hover:text-sepia_brown-1 underline transition-colors">
+                            Printer: <span x-text="printerName || 'System default'"></span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </header>
@@ -74,6 +80,30 @@
                             </template>
                         </div>
                     </div>
+                    <div class="border-t border-gray-200 pt-4">
+                        <div class="flex items-center justify-between gap-3 mb-2">
+                            <label class="block text-sm font-semibold text-sepia_brown-1">Receipt Printer</label>
+                            <button type="button" @click="loadPrinters()"
+                                class="text-xs text-sepia_brown-2/60 hover:text-sepia_brown-1 underline transition-colors">
+                                Refresh List
+                            </button>
+                        </div>
+                        <select x-show="printers.length > 0"
+                            x-model="printerNameInput"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sepia_brown-1 focus:border-transparent mb-2">
+                            <template x-for="printer in printers" :key="printer.name">
+                                <option :value="printer.name" x-text="printer.name + (printer.isDefault ? ' (default)' : '')"></option>
+                            </template>
+                        </select>
+                        <input
+                            type="text"
+                            x-model="printerNameInput"
+                            @keydown.enter="savePrinterName(false)"
+                            placeholder="EPSON TM-T82X Receipt"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sepia_brown-1 focus:border-transparent"
+                        />
+                        <p class="text-xs text-gray-400 mt-1" x-text="printerLoading ? 'Checking printers...' : printerStatus"></p>
+                    </div>
                     <button
                         type="button"
                         @click="saveApiUrl()"
@@ -83,6 +113,62 @@
                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                         </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Printer Setup Panel -->
+        <div x-show="showPrinterSetup" x-cloak
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div class="bg-white rounded-lg shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+                <div class="bg-gradient-to-r from-sepia_brown-1 to-sepia_brown-2 px-6 py-5 flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-gold tracking-wide uppercase">Printer Setup</h2>
+                        <p class="text-gold/70 text-sm mt-1">Choose the receipt printer.</p>
+                    </div>
+                    <button type="button" @click="showPrinterSetup = false"
+                        class="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <p class="text-sm text-sepia_brown-2" x-text="printerLoading ? 'Checking printers...' : printerStatus"></p>
+                        <button type="button" @click="loadPrinters()"
+                            class="text-xs text-sepia_brown-2/60 hover:text-sepia_brown-1 underline transition-colors">
+                            Refresh
+                        </button>
+                    </div>
+
+                    <div x-show="printers.length > 0" class="space-y-2 max-h-48 overflow-y-auto">
+                        <template x-for="printer in printers" :key="printer.name">
+                            <button type="button" @click="selectPrinter(printer.name)"
+                                class="w-full text-left text-sm px-3 py-2 rounded-lg border transition-colors"
+                                :class="printerNameInput === printer.name ? 'border-sepia_brown-1 bg-sepia_brown-1 text-gold' : 'border-gray-200 hover:border-sepia_brown-1'">
+                                <span x-text="printer.name"></span>
+                                <span x-show="printer.isDefault" class="text-xs opacity-70">(default)</span>
+                            </button>
+                        </template>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-sepia_brown-1 mb-1">Printer Name</label>
+                        <input
+                            type="text"
+                            x-model="printerNameInput"
+                            @keydown.enter="savePrinterName()"
+                            placeholder="EPSON TM-T82X Receipt"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sepia_brown-1 focus:border-transparent"
+                        />
+                        <p class="text-xs text-gray-400 mt-1">If no printers appear, type the exact Linux printer name.</p>
+                    </div>
+
+                    <button type="button" @click="savePrinterName()"
+                        class="btn-primary w-full justify-center">
+                        <span>Save Printer</span>
                     </button>
                 </div>
             </div>

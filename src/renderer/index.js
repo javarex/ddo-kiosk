@@ -12,6 +12,12 @@ window.alpineInit = function () {
         apiUrlInput: localStorage.getItem('kiosk_api_url') || '',
         apiSetupDone: !!localStorage.getItem('kiosk_api_url'),
         apiUrlHistory: JSON.parse(localStorage.getItem('kiosk_api_url_history') || '[]'),
+        printerName: localStorage.getItem('kiosk_printer_name') || 'EPSON TM-T82X Receipt',
+        printerNameInput: localStorage.getItem('kiosk_printer_name') || 'EPSON TM-T82X Receipt',
+        printers: [],
+        printerLoading: false,
+        printerStatus: '',
+        showPrinterSetup: false,
         errorLog: [],
         showErrorLog: false,
         modalopen:false,
@@ -23,6 +29,13 @@ window.alpineInit = function () {
         last_print_data:{},
         ticket: {},
 
+        initKiosk() {
+            this.loadPrinters();
+            if (this.apiSetupDone) {
+                this.fetchOffices();
+            }
+        },
+
         saveApiUrl() {
             const url = this.apiUrlInput.replace(/\/+$/, '');
             if (!url) return;
@@ -33,6 +46,7 @@ window.alpineInit = function () {
             localStorage.setItem('kiosk_api_url', url);
             this.apiUrl = url;
             this.apiSetupDone = true;
+            this.savePrinterName(false);
             this.loading = true;
             this.fetchOffices();
         },
@@ -51,6 +65,63 @@ window.alpineInit = function () {
 
         selectHistoryUrl(url) {
             this.apiUrlInput = url;
+        },
+
+        async loadPrinters() {
+            if (!window.electronAPI?.invoke) {
+                this.printerStatus = 'Printer setup is available in the Electron app.';
+                return;
+            }
+
+            this.printerLoading = true;
+            try {
+                const result = await window.electronAPI.invoke('get-printers');
+                this.printers = Array.isArray(result?.printers) ? result.printers : [];
+
+                if (this.printers.length > 0) {
+                    this.printerStatus = `Found ${this.printers.length} printer${this.printers.length === 1 ? '' : 's'}.`;
+                } else {
+                    this.printerStatus = result?.error
+                        ? `No printers found: ${result.error}`
+                        : 'No printers found. Type the printer name manually.';
+                }
+            } catch (error) {
+                this.printers = [];
+                this.printerStatus = 'No printers found. Type the printer name manually.';
+                this.logError('loadPrinters', error);
+            } finally {
+                this.printerLoading = false;
+            }
+        },
+
+        openPrinterSetup() {
+            this.printerNameInput = this.printerName;
+            this.showPrinterSetup = true;
+            this.loadPrinters();
+        },
+
+        selectPrinter(printerName) {
+            this.printerNameInput = printerName;
+        },
+
+        savePrinterName(closeSetup = true) {
+            const printerName = this.printerNameInput.trim();
+            this.printerName = printerName;
+            localStorage.setItem('kiosk_printer_name', printerName);
+            this.printerStatus = printerName
+                ? `Using printer: ${printerName}`
+                : 'Using the system default printer.';
+
+            if (closeSetup) {
+                this.showPrinterSetup = false;
+            }
+        },
+
+        printPayload(printData) {
+            return {
+                ...printData,
+                printerName: this.printerName
+            };
         },
 
         logError(context, error) {
@@ -165,8 +236,7 @@ window.alpineInit = function () {
                 console.log(print_data)
 
                 if (window.electronAPI) {
-                    window.electronAPI.send('print-paper', print_data);
-                    window.electronAPI.send('print-paper', print_data);
+                    window.electronAPI.send('print-paper', this.printPayload(print_data));
                 }
 
                 this.viewTicket = true;
@@ -191,7 +261,7 @@ window.alpineInit = function () {
                     qr_link:this.last_print_data.qr_link
                 };
             if (window.electronAPI) {
-                window.electronAPI.send('print-paper', print_data);
+                window.electronAPI.send('print-paper', this.printPayload(print_data));
             }
         },
 

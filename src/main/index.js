@@ -1,5 +1,115 @@
-const { app, BrowserWindow, ipcMain, Notification } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path');
+
+const DEFAULT_RECEIPT_PRINTER_NAME = process.env.RECEIPT_PRINTER_NAME || 'EPSON TM-T82X Receipt';
+const PRINT_READY_TIMEOUT_MS = 5000;
+
+const normalizePrinterName = (printerName) => {
+  return typeof printerName === 'string' ? printerName.trim() : '';
+};
+
+const closeWindow = (win) => {
+  if (win && !win.isDestroyed()) {
+    win.close();
+  }
+};
+
+const waitForPrintReady = (printWindow, readyChannel, errorChannel) => {
+  return new Promise((resolve, reject) => {
+    const cleanup = () => {
+      clearTimeout(timeout);
+      ipcMain.removeListener(readyChannel, handleReady);
+      ipcMain.removeListener(errorChannel, handleError);
+      printWindow.removeListener('closed', handleClosed);
+    };
+
+    const handleReady = () => {
+      cleanup();
+      resolve();
+    };
+
+    const handleError = (_event, errorMessage) => {
+      cleanup();
+      reject(new Error(errorMessage || 'Print page failed before it was ready.'));
+    };
+
+    const handleClosed = () => {
+      cleanup();
+      reject(new Error('Print window closed before the page was ready.'));
+    };
+
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error(`Print page did not become ready within ${PRINT_READY_TIMEOUT_MS}ms.`));
+    }, PRINT_READY_TIMEOUT_MS);
+
+    ipcMain.once(readyChannel, handleReady);
+    ipcMain.once(errorChannel, handleError);
+    printWindow.once('closed', handleClosed);
+  });
+};
+
+const getPrinters = async (webContents) => {
+  const printers = await webContents.getPrintersAsync();
+  return printers.map((printer) => ({
+    name: printer.name,
+    displayName: printer.displayName,
+    description: printer.description,
+    isDefault: printer.isDefault,
+    status: printer.status
+  }));
+};
+
+const printReceipt = async (printWindow, printerName) => {
+  const requestedPrinterName = normalizePrinterName(printerName) || DEFAULT_RECEIPT_PRINTER_NAME;
+  let printers = [];
+
+  try {
+    printers = await getPrinters(printWindow.webContents);
+  } catch (error) {
+    console.error('Could not enumerate printers:', error);
+  }
+
+  const availablePrinterNames = printers.map((printer) => printer.name);
+  const targetPrinter = printers.find((printer) => printer.name === requestedPrinterName);
+
+  console.log('Available printers:', availablePrinterNames);
+
+  if (requestedPrinterName && !targetPrinter) {
+    console.warn(
+      `Configured printer "${requestedPrinterName}" was not found in the enumerated list. Trying that printer name directly.`
+    );
+  }
+
+  return new Promise((resolve) => {
+    const options = {
+      silent: true,
+      printBackground: false,
+      pageSize: {
+        width: 3 * 25400,
+        height: 3 * 25400
+      },
+      margins: {
+        marginType: 'none'
+      }
+    };
+
+    if (requestedPrinterName) {
+      options.deviceName = targetPrinter ? targetPrinter.name : requestedPrinterName;
+    }
+
+    printWindow.webContents.print(options, (success, errorType) => {
+      if (success) {
+        console.log(`Print success on "${options.deviceName || 'system default'}".`);
+      } else {
+        console.error('Print failed:', errorType || 'Unknown print error');
+      }
+
+      resolve({ success, errorType });
+    });
+  });
+};
+
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 1080,
@@ -24,8 +134,21 @@ app.whenReady().then(() => {
   createWindow()
 });
 
+ipcMain.handle('get-printers', async (event) => {
+  try {
+    const printers = await getPrinters(event.sender);
+    return { printers };
+  } catch (error) {
+    console.error('Could not get printers:', error);
+    return {
+      printers: [],
+      error: error?.message || String(error)
+    };
+  }
+});
+
 ipcMain.on('print-paper', (event, data) => {
-   const printWindow = new BrowserWindow({
+  const printWindow = new BrowserWindow({
     width: 300,  // window size in pixels (not print size)
     height: 400,
     show: false, // hide window during print
@@ -45,41 +168,33 @@ ipcMain.on('print-paper', (event, data) => {
   //   }
   // });
 
-  // Load the print HTML page
-  // printWindow.loadFile(path.join(__dirname, '../renderer/print.html'));
+  const jobId = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  const readyChannel = `print-ready:${jobId}`;
+  const errorChannel = `print-error:${jobId}`;
+
+  printWindow.webContents.once('did-fail-load', (_event, errorCode, errorDescription) => {
+    console.error('Print page failed to load:', { errorCode, errorDescription });
+    closeWindow(printWindow);
+  });
+
   printWindow.loadFile(path.join(__dirname, '../renderer/print.html'));
 
-  // Once the page is ready, print it
-  printWindow.webContents.on('did-finish-load', () => {
-    printWindow.webContents.send('set-print-data', data);
+  printWindow.webContents.once('did-finish-load', async () => {
+    try {
+      const readyPromise = waitForPrintReady(printWindow, readyChannel, errorChannel);
 
-    setTimeout(() => {
-      printWindow.webContents.print({
-        silent: true,
-        printBackground: false,
-        deviceName: 'EPSON TM-T82X Receipt',  // Replace with actual printer name
-        pageSize: {
-          width: 3 * 25400,  // 3 inches in microns
-          height: 3 * 25400
-        },
-        margins: {
-          marginType: 'none'  // ✅ This removes all default margins
-        }
-      }, (success, errorType) => {
-        if (success) {
-          new Notification({
-            title: 'Print Success',
-            body: 'Your document has been printed successfully.',
-          }).show();
-        } else {
-          new Notification({
-            title: 'Print Failed',
-            body: `Error printing: ${errorType}`,
-          }).show();
-        }
-  
-        printWindow.close(); // Clean up
+      printWindow.webContents.send('set-print-data', {
+        ...data,
+        readyChannel,
+        errorChannel
       });
-    }, 500);
+
+      await readyPromise;
+      await printReceipt(printWindow, data?.printerName);
+    } catch (error) {
+      console.error('Print job failed:', error);
+    } finally {
+      closeWindow(printWindow);
+    }
   });
 });
