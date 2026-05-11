@@ -20,6 +20,13 @@ window.alpineInit = function () {
         showPrinterSetup: false,
         errorLog: [],
         showErrorLog: false,
+        showLanding: true,
+        idleTimer: null,
+        idleCountdownTimer: null,
+        idleDeadline: null,
+        idleRemainingSeconds: 30,
+        idleTimeoutMs: 30000,
+        idleEvents: ['pointerdown', 'keydown', 'touchstart'],
         modalopen:false,
         viewTicket:false,
         offices: [],
@@ -30,10 +37,67 @@ window.alpineInit = function () {
         ticket: {},
 
         initKiosk() {
+            this.registerIdleEvents();
             this.loadPrinters();
             if (this.apiSetupDone) {
                 this.fetchOffices();
             }
+        },
+
+        registerIdleEvents() {
+            this.idleEvents.forEach((eventName) => {
+                window.addEventListener(eventName, () => this.recordActivity(), { passive: true });
+            });
+        },
+
+        recordActivity() {
+            if (!this.showLanding) {
+                this.startTicketIdleTimer();
+            }
+        },
+
+        startTicketIdleTimer() {
+            this.clearTicketIdleTimer();
+            this.idleDeadline = Date.now() + this.idleTimeoutMs;
+            this.idleRemainingSeconds = Math.ceil(this.idleTimeoutMs / 1000);
+            this.idleCountdownTimer = window.setInterval(() => this.updateIdleCountdown(), 250);
+            this.idleTimer = window.setTimeout(() => this.returnToLanding(), this.idleTimeoutMs);
+        },
+
+        clearTicketIdleTimer() {
+            if (this.idleTimer) {
+                window.clearTimeout(this.idleTimer);
+                this.idleTimer = null;
+            }
+            if (this.idleCountdownTimer) {
+                window.clearInterval(this.idleCountdownTimer);
+                this.idleCountdownTimer = null;
+            }
+            this.idleDeadline = null;
+        },
+
+        updateIdleCountdown() {
+            if (!this.idleDeadline) return;
+            this.idleRemainingSeconds = Math.max(0, Math.ceil((this.idleDeadline - Date.now()) / 1000));
+        },
+
+        startTicketFlow() {
+            this.showLanding = false;
+            this.showErrorLog = false;
+            this.startTicketIdleTimer();
+
+            if (this.apiSetupDone && this.offices.length === 0) {
+                this.fetchOffices();
+            }
+        },
+
+        returnToLanding() {
+            this.clearTicketIdleTimer();
+            this.showLanding = true;
+            this.closeModal(false);
+            this.services = [];
+            this.showErrorLog = false;
+            this.showPrinterSetup = false;
         },
 
         saveApiUrl() {
@@ -239,6 +303,7 @@ window.alpineInit = function () {
                 }
 
                 this.viewTicket = true;
+                this.startTicketIdleTimer();
                 // this.services = [];
                 // await this.closeModal();
             } catch (error) {
@@ -264,6 +329,7 @@ window.alpineInit = function () {
         },
 
         closeModal(clearService = false) {
+            this.clearTicketIdleTimer();
 
             if (clearService) {
 
@@ -275,6 +341,10 @@ window.alpineInit = function () {
             this.viewTicket = false;
             this.selected_service = '';
             this.priority_type = '';
+
+            if (!this.showLanding) {
+                this.startTicketIdleTimer();
+            }
         },
 
         setPriority(priority) {
