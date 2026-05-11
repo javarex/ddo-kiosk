@@ -295,70 +295,90 @@
                 <!-- Priority Selection View -->
                 <section id="priorities-selection" x-show="!viewTicket">
                     <!-- Modal Header -->
-                    <div class="bg-gradient-to-r from-sepia_brown-1 to-sepia_brown-2 px-6 py-4">
-                        <h3 x-text="modalHeader()" class="text-xl font-bold text-gold text-center uppercase tracking-wide"></h3>
-                    </div>
-
-                    <!-- Instructions -->
-                    <div class="px-6 py-4 bg-white/50">
-                        <div class="flex items-start gap-3">
-                            <div class="flex-shrink-0 w-8 h-8 bg-sepia_brown-1 rounded-full flex items-center justify-center">
-                                <svg class="w-4 h-4 text-gold" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            <div class="text-sm text-sepia_brown-2">
-                                <p class="font-semibold mb-1">Pahinumdom / Note:</p>
-                                <ul class="list-disc list-inside space-y-1 text-sepia_brown-2/80">
-                                    <li>Pilia ang kategorya sa kliyente bag-o mo pindot proceed/padayon.</li>
-                                    <li>Kung regular o normal na kliyente pwede ra mo proceed/padayon.</li>
-                                </ul>
-                            </div>
-                        </div>
+                    <div class="modal-priority-header">
+                        <h3 x-text="modalHeader()" class="modal-priority-title"></h3>
                     </div>
 
                     <!-- Selected Priority Badge -->
-                    <div class="px-6 py-3 border-t border-gold/20" x-show="priority_type !== ''">
-                        <div class="flex items-center justify-between">
-                            <span class="text-sm font-medium text-sepia_brown-1">Kategorya sa Kliyente:</span>
-                            <div class="flex items-center gap-1">
-                                <span x-text="priorities[priority_type]"
-                                    class="bg-sepia_brown-1 text-gold text-sm font-medium px-3 py-1 rounded-l-full uppercase"></span>
-                                <button @click="priority_type = ''"
-                                    class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded-r-full transition-colors">
+                    <div class="priority-selection-bar" x-show="priority_type !== ''">
+                        <div class="priority-selection-label">
+                            <span>Kategorya sa Kliyente</span>
+                            <strong x-text="priorities[priority_type]"></strong>
+                        </div>
+                        <button @click="priority_type = 'regular'"
+                            class="priority-reset-button"
+                            aria-label="Reset priority to regular">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
-                                </button>
-                            </div>
-                        </div>
+                        </button>
                     </div>
 
                     <!-- Priority Cards Grid -->
-                    <div class="p-6 grid grid-cols-2 gap-4">
+                    <div class="priority-cards-grid">
+                        <div @click="setPriority('regular')"
+                            class="priority-card priority-card-regular"
+                            :class="{'selected': priority_type == 'regular'}">
+                            <div class="priority-selected-icon" x-show="priority_type == 'regular'">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3.25-3.25a1 1 0 111.414-1.414l2.543 2.543 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div class="priority-card-body priority-card-body-regular">
+                                <div class="priority-card-icon">
+                                <svg class="w-14 h-14 text-gold" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.536-9.879a1 1 0 00-1.414-1.414L9 9.828 7.879 8.707a1 1 0 00-1.414 1.414l1.828 1.829a1 1 0 001.414 0l3.829-3.829z" clip-rule="evenodd"/>
+                                </svg>
+                                </div>
+                                <div>
+                                    <span class="priority-card-label">Regular</span>
+                                    <span class="priority-card-caption">Normal Queue</span>
+                                </div>
+                            </div>
+                        </div>
                         <div @click="setPriority('pwd')"
                             class="priority-card"
                             :class="{'selected': priority_type == 'pwd'}">
+                            <div class="priority-selected-icon" x-show="priority_type == 'pwd'">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3.25-3.25a1 1 0 111.414-1.414l2.543 2.543 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
                             <img src="../../assets/images/pwd.png" alt="PWD">
-                            <span class="text-gold font-bold text-sm uppercase">PWD</span>
+                            <span class="priority-card-label">PWD</span>
                         </div>
                         <div @click="setPriority('senior')"
                             class="priority-card"
                             :class="{'selected': priority_type == 'senior'}">
+                            <div class="priority-selected-icon" x-show="priority_type == 'senior'">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3.25-3.25a1 1 0 111.414-1.414l2.543 2.543 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
                             <img src="../../assets/images/sc.png" alt="Senior Citizen">
-                            <span class="text-gold font-bold text-sm uppercase">Senior Citizen</span>
+                            <span class="priority-card-label">Senior Citizen</span>
                         </div>
                         <div @click="setPriority('pregnant')"
                             class="priority-card"
                             :class="{'selected': priority_type == 'pregnant'}">
+                            <div class="priority-selected-icon" x-show="priority_type == 'pregnant'">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3.25-3.25a1 1 0 111.414-1.414l2.543 2.543 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
                             <img src="../../assets/images/pregnant.png" alt="Pregnant">
-                            <span class="text-gold font-bold text-sm uppercase">Pregnant</span>
+                            <span class="priority-card-label">Pregnant</span>
                         </div>
                         <div @click="setPriority('with_infant')"
                             class="priority-card"
                             :class="{'selected': priority_type == 'with_infant'}">
+                            <div class="priority-selected-icon" x-show="priority_type == 'with_infant'">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3.25-3.25a1 1 0 111.414-1.414l2.543 2.543 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
                             <img src="../../assets/images/with_infant.png" alt="With Infant">
-                            <span class="text-gold font-bold text-sm uppercase">With Infant</span>
+                            <span class="priority-card-label">With Infant</span>
                         </div>
                     </div>
 

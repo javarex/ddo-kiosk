@@ -136,7 +136,26 @@ window.alpineInit = function () {
             this.errorLog.unshift({ full: entry, lines });
             if (this.errorLog.length > 50) this.errorLog.pop();
         },
+        async parseApiResponse(response, context) {
+            const contentType = response.headers.get('content-type') || '';
+            const isJson = contentType.includes('application/json');
+            const result = isJson ? await response.json() : await response.text();
+
+            if (!response.ok) {
+                const message = typeof result === 'string'
+                    ? result.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 300)
+                    : (result.message || JSON.stringify(result));
+                throw new Error(`${context} failed with HTTP ${response.status}: ${message || response.statusText}`);
+            }
+
+            if (!isJson) {
+                throw new Error(`${context} returned ${contentType || 'non-JSON'} instead of JSON.`);
+            }
+
+            return result;
+        },
         priorities: {
+            regular: 'Regular',
             senior: 'Senior Citizen',
             pregnant: 'Pregnant',
             pwd: 'PWD',
@@ -191,23 +210,30 @@ window.alpineInit = function () {
         openPriorityModal(id) {
 
             this.selected_service = id;
+            this.priority_type = 'regular';
             this.modalopen = true;
             // this.createTicket(id);
         },
         async createTicket() {
             try {
                 console.log(`create: ${this.priority_type}`)
+                const requestBody = {
+                    id: this.selected_service
+                };
+
+                if (this.priority_type && this.priority_type !== 'regular') {
+                    requestBody.priority_type = this.priority_type;
+                }
+
                 const response = await fetch(`${this.apiUrl}/api/create-ticket/${this.selected_service}`, {
                                     method: 'POST',
                                     headers: {
-                                        'Content-Type': 'application/json'
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json'
                                     },
-                                    body: JSON.stringify({
-                                        id: this.selected_service,
-                                        priority_type: this.priority_type
-                                    })
+                                    body: JSON.stringify(requestBody)
                                 });
-                const result = await response.json();
+                const result = await this.parseApiResponse(response, 'createTicket');
 
                 const time = new Date(result.datetime).toLocaleTimeString('en-PH');
                 const date = new Date(result.datetime).toLocaleDateString('en-PH');
@@ -279,8 +305,8 @@ window.alpineInit = function () {
 
         setPriority(priority) {
 
-            if (priority == this.priority_type) {
-                this.priority_type = '';
+            if (priority == this.priority_type && priority !== 'regular') {
+                this.priority_type = 'regular';
                 return false;
             }
             this.priority_type = priority;

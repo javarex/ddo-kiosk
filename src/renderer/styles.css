@@ -84,19 +84,107 @@
     @apply active:scale-95;
   }
 
+  .modal-priority-header {
+    @apply px-6 py-5;
+    @apply bg-sepia_brown-1;
+    @apply border-b-4 border-gold;
+  }
+
+  .modal-priority-title {
+    @apply text-2xl font-extrabold text-gold text-center uppercase;
+    @apply leading-tight;
+  }
+
+  .priority-selection-bar {
+    @apply mx-6 mt-5 px-4 py-3;
+    @apply flex items-center justify-between gap-3;
+    @apply rounded-xl bg-white;
+    @apply border border-gold/30 shadow-sm;
+  }
+
+  .priority-selection-label {
+    @apply min-w-0 flex flex-col gap-0.5;
+  }
+
+  .priority-selection-label span {
+    @apply text-xs font-semibold uppercase text-sepia_brown-1/60;
+  }
+
+  .priority-selection-label strong {
+    @apply text-lg font-extrabold text-sepia_brown-1 uppercase leading-tight;
+  }
+
+  .priority-reset-button {
+    @apply flex h-10 w-10 flex-shrink-0 items-center justify-center;
+    @apply rounded-full bg-red-50 text-red-600;
+    @apply border border-red-100 transition-all duration-200;
+    @apply hover:bg-red-600 hover:text-white;
+  }
+
+  .priority-cards-grid {
+    @apply p-6 grid grid-cols-2 gap-4;
+  }
+
   .priority-card {
-    @apply relative flex flex-col items-center gap-3 p-6;
-    @apply rounded-2xl bg-sepia_brown-1/90 backdrop-blur-sm;
-    @apply border-2 border-transparent;
-    @apply shadow-lg shadow-sepia_brown-1/20;
+    @apply relative flex min-h-[150px] flex-col items-center justify-center gap-3 p-5;
+    @apply rounded-2xl bg-white;
+    @apply border-2 border-sepia_brown-1/10;
+    @apply shadow-md shadow-sepia_brown-1/10;
     @apply transform transition-all duration-300 ease-out;
-    @apply hover:bg-sepia_brown-2 hover:scale-105;
+    @apply hover:border-gold/70 hover:scale-[1.03] hover:shadow-lg hover:shadow-gold/20;
     @apply cursor-pointer;
   }
 
+  .priority-card-regular {
+    grid-column: 1 / -1;
+    @apply min-h-[120px];
+    @apply bg-sepia_brown-1;
+    @apply border-gold/30;
+  }
+
   .priority-card.selected {
-    @apply border-gold bg-sepia_brown-2;
-    @apply ring-4 ring-gold/30;
+    @apply border-gold scale-[1.03];
+    @apply ring-4 ring-gold/30 shadow-xl shadow-gold/25;
+  }
+
+  .priority-card:not(.priority-card-regular).selected {
+    @apply bg-highlight_gold-2;
+  }
+
+  .priority-card-regular.selected {
+    @apply bg-sepia_brown-2;
+  }
+
+  .priority-card-body {
+    @apply flex flex-col items-center gap-3 text-center;
+  }
+
+  .priority-card-body-regular {
+    @apply w-full flex-row justify-center gap-5 text-left;
+  }
+
+  .priority-selected-icon {
+    @apply absolute -top-3 -right-3;
+    @apply flex items-center justify-center w-9 h-9;
+    @apply rounded-full bg-gold text-sepia_brown-1;
+    @apply border-4 border-amber-50 shadow-lg;
+  }
+
+  .priority-card-icon {
+    @apply flex items-center justify-center w-20 h-20;
+    @apply rounded-full bg-sepia_brown-2/70 drop-shadow-lg;
+  }
+
+  .priority-card-label {
+    @apply block text-center text-sm font-extrabold uppercase leading-tight text-sepia_brown-1;
+  }
+
+  .priority-card-caption {
+    @apply mt-1 block text-sm font-semibold uppercase text-gold;
+  }
+
+  .priority-card-regular .priority-card-label {
+    @apply text-3xl text-gold;
   }
 
   .priority-card img {
