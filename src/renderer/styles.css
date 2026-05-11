@@ -49,7 +49,7 @@
     @apply fixed right-2 top-2 flex items-center gap-1 rounded;
     @apply bg-sepia_brown-1/90 px-2 py-1 text-[10px] font-medium text-white shadow-md;
     @apply border border-gold/40 backdrop-blur-sm;
-    z-index: 9999;
+    z-index: 2147483647 !important;
   }
 
   .idle-indicator strong {
