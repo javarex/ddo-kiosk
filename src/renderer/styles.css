@@ -24,7 +24,7 @@
   .landing-display {
     @apply fixed inset-0 z-40 flex items-center justify-center overflow-hidden bg-black;
     background-image: var(--landing-bg);
-    background-size: auto 100%;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
   }
