@@ -21,6 +21,41 @@
 
 /* Modern card styles */
 @layer components {
+  .landing-display {
+    @apply fixed inset-0 z-40 flex items-center justify-center overflow-hidden bg-black;
+    background-image: var(--landing-bg);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .landing-content {
+    @apply relative z-10 flex min-h-screen w-full flex-col items-end justify-start px-8 py-8 text-center text-white;
+  }
+
+  .landing-action {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-md;
+    @apply bg-gold px-3 py-2 text-xs font-extrabold text-sepia_brown-1;
+    @apply shadow-lg shadow-black/30 transition-all duration-200;
+    @apply hover:scale-105 hover:bg-highlight_gold-1 active:scale-95;
+    @apply focus:outline-none focus:ring-2 focus:ring-white/80 focus:ring-offset-2 focus:ring-offset-sepia_brown-1;
+  }
+
+  .landing-action svg {
+    @apply h-4 w-4;
+  }
+
+  .idle-indicator {
+    @apply fixed right-2 top-2 z-50 flex items-center gap-1 rounded;
+    @apply bg-sepia_brown-1/90 px-2 py-1 text-[10px] font-medium text-white shadow-md;
+    @apply border border-gold/40 backdrop-blur-sm;
+  }
+
+  .idle-indicator strong {
+    @apply inline-flex h-5 items-center justify-center rounded-full bg-gold px-1 text-xs font-extrabold text-sepia_brown-1;
+    min-width: 1.25rem;
+  }
+
   .card-office {
     @apply relative overflow-hidden rounded-2xl;
     @apply bg-gradient-to-br from-sepia_brown-1 to-sepia_brown-2;

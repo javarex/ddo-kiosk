@@ -25,6 +25,8 @@ const html = fs.readFileSync('src/renderer/index.html', 'utf8')
   .replace(/src="\.\.\/\.\.\/dist\/renderer\.js"/g, 'src="./renderer.js"')
   .replace(/href="\.\.\/\.\.\/dist\/bundle\.css"/g, 'href="./bundle.css"')
   .replace(/src="\.\.\/\.\.\/assets\//g, 'src="./assets/')
+  .replace(/\.\.\/\.\.\/assets\//g, './assets/')
+  .replace(/\.\.\/assets\//g, './assets/')
   .replace(/<script type="module" src="\.\.\/\.\.\/dist\/bundle\.js"><\/script>/g,
            '<script type="module" src="./renderer.js"></script>');
 
