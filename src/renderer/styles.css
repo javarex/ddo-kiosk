@@ -49,7 +49,7 @@
     @apply fixed right-2 top-2 flex items-center gap-1 rounded;
     @apply bg-sepia_brown-1/90 px-2 py-1 text-[10px] font-medium text-white shadow-md;
     @apply border border-gold/40 backdrop-blur-sm;
-    z-index: 2147483647 !important;
+    z-index: 1100 !important;
   }
 
   .idle-indicator strong {
@@ -117,6 +117,16 @@
     @apply transform transition-all duration-200 ease-out;
     @apply hover:bg-red-700 hover:scale-105 hover:shadow-xl;
     @apply focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2;
+    @apply active:scale-95;
+  }
+
+  .last-ticket-button {
+    @apply inline-flex h-14 items-center justify-center gap-2 rounded-full;
+    @apply bg-gold px-5 text-sm font-extrabold uppercase text-sepia_brown-1;
+    @apply border border-sepia_brown-1/20 shadow-xl shadow-sepia_brown-1/25;
+    @apply transform transition-all duration-200 ease-out;
+    @apply hover:bg-highlight_gold-1 hover:scale-105;
+    @apply focus:outline-none focus:ring-2 focus:ring-sepia_brown-1 focus:ring-offset-2;
     @apply active:scale-95;
   }
 
@@ -234,9 +244,10 @@
   }
 
   .modal-overlay {
-    @apply fixed inset-0 z-50;
+    @apply fixed inset-0;
     @apply bg-black/60 backdrop-blur-sm;
     @apply flex items-center justify-center p-4;
+    z-index: 1000;
   }
 
   .modal-content {

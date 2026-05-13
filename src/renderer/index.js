@@ -325,7 +325,10 @@ window.alpineInit = function () {
                 console.log(print_data)
 
                 if (window.electronAPI) {
-                    window.electronAPI.send('print-paper', this.printPayload(print_data));
+                    window.electronAPI.send('print-paper', this.printPayload({
+                        ...print_data,
+                        copies: 2
+                    }));
                 }
 
                 this.viewTicket = true;
@@ -352,6 +355,24 @@ window.alpineInit = function () {
             if (window.electronAPI) {
                 window.electronAPI.send('print-paper', this.printPayload(print_data));
             }
+        },
+
+        showAndPrintLastTicket() {
+            if (!this.last_print_data?.ticket_no) return;
+
+            this.ticket = {
+                ticket_no: this.last_print_data.ticket_no,
+                priority_type: this.last_print_data.priority,
+                service: this.last_print_data.service,
+                office: this.last_print_data.office,
+                datetime: this.last_print_data.datetime,
+                type: this.last_print_data.type
+            };
+
+            this.modalopen = true;
+            this.viewTicket = true;
+            this.print();
+            this.startTicketIdleTimer();
         },
 
         closeModal(clearService = false) {

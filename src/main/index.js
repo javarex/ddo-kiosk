@@ -8,6 +8,16 @@ const normalizePrinterName = (printerName) => {
   return typeof printerName === 'string' ? printerName.trim() : '';
 };
 
+const normalizePrintCopies = (copies) => {
+  const parsedCopies = Number.parseInt(copies, 10);
+
+  if (!Number.isFinite(parsedCopies) || parsedCopies < 1) {
+    return 1;
+  }
+
+  return Math.min(parsedCopies, 5);
+};
+
 const closeWindow = (win) => {
   if (win && !win.isDestroyed()) {
     win.close();
@@ -110,6 +120,18 @@ const printReceipt = async (printWindow, printerName) => {
   });
 };
 
+const printReceiptCopies = async (printWindow, printerName, copies) => {
+  const copyCount = normalizePrintCopies(copies);
+  const results = [];
+
+  for (let copy = 1; copy <= copyCount; copy += 1) {
+    console.log(`Printing receipt copy ${copy} of ${copyCount}.`);
+    results.push(await printReceipt(printWindow, printerName));
+  }
+
+  return results;
+};
+
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 1080,
@@ -190,7 +212,7 @@ ipcMain.on('print-paper', (event, data) => {
       });
 
       await readyPromise;
-      await printReceipt(printWindow, data?.printerName);
+      await printReceiptCopies(printWindow, data?.printerName, data?.copies);
     } catch (error) {
       console.error('Print job failed:', error);
     } finally {

@@ -249,6 +249,18 @@
             </section>
         </main>
 
+        <!-- Last Ticket Floating Button -->
+        <div x-show="!showLanding && last_print_data.ticket_no && !modalopen" x-cloak class="fixed bottom-20 right-4 z-50">
+            <button type="button" @click="showAndPrintLastTicket()"
+                class="last-ticket-button"
+                aria-label="Show and print last ticket">
+                <svg class="w-6 h-6 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span>Last Ticket</span>
+            </button>
+        </div>
+
         <!-- Error Log Button -->
         <div x-show="!showLanding" x-cloak class="fixed bottom-4 right-4 z-50">
             <button @click="showErrorLog = !showErrorLog"
